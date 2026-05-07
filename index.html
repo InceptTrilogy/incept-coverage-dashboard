@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Incept AP Coverage Dashboard</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main>
+    <header class="page-header">
+      <h1 id="title">Incept AP Coverage Dashboard</h1>
+      <p class="subtitle" id="subtitle"></p>
+      <div class="meta">
+        <span><strong>As of:</strong> <span id="as-of">—</span></span>
+        <span><strong>Cadence:</strong> <span id="cadence">—</span></span>
+        <span><strong>Source:</strong> incept-hole-filler · incept-test-builder · timeback-loops</span>
+      </div>
+      <div class="stale-banner fresh" id="stale-banner"></div>
+    </header>
+
+    <section id="summary-section">
+      <h2>Loop status — headline</h2>
+      <p class="section-desc">Per-subject loop status rolled up. A subject is <em>closed</em> when all four stages (Diagnose → Decide → Act → Re-test) run end-to-end with no human in the loop.</p>
+      <div class="summary" id="summary"></div>
+    </section>
+
+    <section id="matrix-section">
+      <h2>Coverage matrix</h2>
+      <p class="section-desc">What's wired up for each enrolled AP subject. Hover a row to see notes and caveats.</p>
+      <table>
+        <thead>
+          <tr>
+            <th>Subject</th>
+            <th class="numeric">Students</th>
+            <th>Exam</th>
+            <th>Hole-filler</th>
+            <th>FRQ grader</th>
+            <th>Calibrated</th>
+            <th>Loop</th>
+          </tr>
+        </thead>
+        <tbody id="matrix-tbody"></tbody>
+      </table>
+    </section>
+
+    <section id="loop-section">
+      <h2>Loop status by subject</h2>
+      <p class="section-desc">Per-stage view of where each subject sits along the loop. Useful for spotting which stage breaks first when something is open.</p>
+      <div class="legend">
+        <div class="item"><span class="swatch closed"></span>Closed — automated end-to-end</div>
+        <div class="item"><span class="swatch partial"></span>Partial — wired up with caveat</div>
+        <div class="item"><span class="swatch open"></span>Open — not wired up or broken</div>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Subject</th>
+            <th class="cell-status" title="Wrong answers → tagged AP standards">Diagnose</th>
+            <th class="cell-status" title="Recommend the next test from current signal">Decide</th>
+            <th class="cell-status" title="Build Knowledge → tailored remediation course">Act</th>
+            <th class="cell-status" title="Re-test → grade → bucket re-evaluates">Re-test</th>
+          </tr>
+        </thead>
+        <tbody id="loop-tbody"></tbody>
+      </table>
+    </section>
+
+    <section id="contradictions-section">
+      <h2>Cross-repo contradictions &amp; coverage gaps</h2>
+      <p class="section-desc">Where the seams between hole-filler, FRQ grader, and CED don't agree. Each item names the operational impact and the fix.</p>
+      <div class="contradictions" id="contradictions"></div>
+    </section>
+
+    <footer>
+      <p><strong>How this is maintained:</strong> the dashboard reads from <code>data.json</code>. To refresh, follow <code>WEEKLY_REVIEW.md</code> in this repo.</p>
+      <p><strong>Loop stages:</strong></p>
+      <ul id="loop-defs"></ul>
+      <p style="margin-top:16px"><strong>Data sources:</strong></p>
+      <ul id="sources-list"></ul>
+    </footer>
+  </main>
+
+  <script>
+    // All rendering uses DOM methods + textContent.
+    // No innerHTML on user-derived data — keeps the dashboard XSS-safe even if
+    // data.json is edited by someone untrusted in the future.
+
+    const STATUS_LABELS = { closed: 'Closed', partial: 'Partial', open: 'Open' };
+    const STATUS_GLYPH = { closed: '✓', partial: '◐', open: '✗' };
+    const FRQ_LABEL = {
+      full: 'Full grader',
+      fallback: 'BaseGrader fallback',
+      missing: 'Missing (KeyError)',
+    };
+    const FRQ_PILL_CLASS = { full: 'closed', fallback: 'partial', missing: 'open' };
+    const STAGE_LABELS = { diagnose: 'Diagnose', decide: 'Decide', act: 'Act', retest: 'Re-test' };
+    const STAGE_ORDER = ['diagnose', 'decide', 'act', 'retest'];
+
+    function el(tag, opts = {}, children = []) {
+      const node = document.createElement(tag);
+      if (opts.className) node.className = opts.className;
+      if (opts.text != null) node.textContent = opts.text;
+      if (opts.title) node.setAttribute('title', opts.title);
+      if (opts.attrs) {
+        for (const [k, v] of Object.entries(opts.attrs)) node.setAttribute(k, v);
+      }
+      for (const c of children) {
+        if (c == null) continue;
+        node.appendChild(typeof c === 'string' ? document.createTextNode(c) : c);
+      }
+      return node;
+    }
+
+    function pill(status, labelOverride) {
+      const label = labelOverride || STATUS_LABELS[status] || status;
+      return el('span', { className: `pill ${status}`, text: label });
+    }
+
+    function clearChildren(node) {
+      while (node.firstChild) node.removeChild(node.firstChild);
+    }
+
+    function setText(id, value) {
+      const node = document.getElementById(id);
+      if (node) node.textContent = value || '';
+    }
+
+    function checkStale(asOf, staleAfterDays) {
+      const banner = document.getElementById('stale-banner');
+      if (!asOf || !staleAfterDays) return;
+      const asOfDate = new Date(asOf);
+      const today = new Date();
+      const diffDays = Math.floor((today - asOfDate) / (1000 * 60 * 60 * 24));
+      if (diffDays > staleAfterDays) {
+        banner.classList.remove('fresh');
+        banner.textContent = `Data is ${diffDays} days old (review window: ${staleAfterDays} days). Run the weekly review to refresh.`;
+      }
+    }
+
+    function renderSummary(subjects) {
+      const counts = { closed: 0, partial: 0, open: 0 };
+      const studentsByStatus = { closed: 0, partial: 0, open: 0 };
+      let totalStudents = 0;
+      subjects.forEach(s => {
+        counts[s.overall] = (counts[s.overall] || 0) + 1;
+        studentsByStatus[s.overall] = (studentsByStatus[s.overall] || 0) + (s.students || 0);
+        totalStudents += (s.students || 0);
+      });
+      const container = document.getElementById('summary');
+      clearChildren(container);
+
+      const stat = (cls, label, value, sub) => {
+        const card = el('div', { className: cls ? `stat ${cls}` : 'stat' });
+        card.appendChild(el('div', { className: 'label', text: label }));
+        card.appendChild(el('div', { className: 'value', text: String(value) }));
+        if (sub) {
+          const subEl = el('div', { text: sub });
+          subEl.style.fontSize = '12px';
+          subEl.style.color = 'var(--muted)';
+          subEl.style.marginTop = '4px';
+          card.appendChild(subEl);
+        }
+        return card;
+      };
+
+      container.appendChild(stat(null, 'Subjects tracked', subjects.length, null));
+      container.appendChild(stat('closed', 'Closed loop', counts.closed,
+        `${studentsByStatus.closed} of ${totalStudents} students`));
+      container.appendChild(stat('partial', 'Partial', counts.partial || 0,
+        `${studentsByStatus.partial || 0} students`));
+      container.appendChild(stat('open', 'Open', counts.open || 0,
+        `${studentsByStatus.open || 0} students`));
+    }
+
+    function renderMatrix(subjects) {
+      const tbody = document.getElementById('matrix-tbody');
+      clearChildren(tbody);
+
+      subjects.forEach(s => {
+        const tr = el('tr');
+        const titleAttr = [s.hole_filler.notes, s.frq_grader.notes, s.notes].filter(Boolean).join(' · ');
+        if (titleAttr) tr.setAttribute('title', titleAttr);
+
+        tr.appendChild(el('td', { className: 'subject-name', text: s.name }));
+        tr.appendChild(el('td', { className: 'numeric', text: String(s.students) }));
+        tr.appendChild(el('td', { text: s.exam_date }));
+
+        const hfCell = el('td');
+        hfCell.appendChild(s.hole_filler.registered
+          ? pill('closed', 'Registered')
+          : pill('open', 'Not registered'));
+        tr.appendChild(hfCell);
+
+        const frqCell = el('td');
+        frqCell.appendChild(pill(FRQ_PILL_CLASS[s.frq_grader.status] || 'open',
+          FRQ_LABEL[s.frq_grader.status] || s.frq_grader.status));
+        tr.appendChild(frqCell);
+
+        const calCell = el('td');
+        calCell.appendChild(s.calibrated ? pill('closed', 'Yes') : pill('open', 'No'));
+        tr.appendChild(calCell);
+
+        const loopCell = el('td');
+        loopCell.appendChild(pill(s.overall));
+        tr.appendChild(loopCell);
+
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderLoopTable(subjects) {
+      const tbody = document.getElementById('loop-tbody');
+      clearChildren(tbody);
+
+      subjects.forEach(s => {
+        const tr = el('tr');
+        tr.appendChild(el('td', { className: 'subject-name', text: s.name }));
+        STAGE_ORDER.forEach(stage => {
+          const status = s.loop[stage];
+          tr.appendChild(el('td', {
+            className: `cell-status ${status}`,
+            text: STATUS_GLYPH[status] || '–',
+            title: STATUS_LABELS[status] || '',
+          }));
+        });
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderContradictions(items, subjectsBySlug) {
+      const container = document.getElementById('contradictions');
+      clearChildren(container);
+
+      if (!items || items.length === 0) {
+        const note = el('p', { text: 'No cross-repo contradictions this week. The loop is consistent across hole-filler, FRQ grader, and CED.' });
+        note.style.color = 'var(--muted)';
+        container.appendChild(note);
+        return;
+      }
+
+      items.forEach(c => {
+        const card = el('div', { className: `contradiction ${c.severity}` });
+
+        const heading = el('h3');
+        heading.appendChild(document.createTextNode(c.title + ' '));
+        heading.appendChild(el('span', { className: 'severity', text: c.severity }));
+        card.appendChild(heading);
+
+        const subjectNames = (c.subjects || []).map(slug => {
+          const subj = subjectsBySlug[slug];
+          return subj ? subj.name : slug;
+        }).join(', ');
+
+        const detailLine = (label, value) => {
+          const line = el('div', { className: 'detail-line' });
+          line.appendChild(el('span', { className: 'label', text: label }));
+          line.appendChild(document.createTextNode(value));
+          return line;
+        };
+
+        card.appendChild(detailLine('Subjects:', subjectNames));
+        if (c.students_affected != null) {
+          card.appendChild(detailLine('Students affected:', String(c.students_affected)));
+        }
+        card.appendChild(detailLine('Detail:', c.details));
+        card.appendChild(detailLine('Remediation:', c.remediation));
+
+        container.appendChild(card);
+      });
+    }
+
+    function renderFooter(data) {
+      const stages = data.loop_stages || {};
+      const loopList = document.getElementById('loop-defs');
+      clearChildren(loopList);
+      STAGE_ORDER.forEach(k => {
+        const li = el('li');
+        const strong = el('strong', { text: STAGE_LABELS[k] + '. ' });
+        li.appendChild(strong);
+        li.appendChild(document.createTextNode(stages[k] || ''));
+        loopList.appendChild(li);
+      });
+
+      const sourcesList = document.getElementById('sources-list');
+      clearChildren(sourcesList);
+      const sources = data.data_sources || {};
+      Object.entries(sources).forEach(([k, v]) => {
+        const li = el('li');
+        li.appendChild(el('strong', { text: k + ': ' }));
+        li.appendChild(el('code', { text: v }));
+        sourcesList.appendChild(li);
+      });
+    }
+
+    async function load() {
+      const res = await fetch('data.json');
+      const data = await res.json();
+
+      document.title = data.title;
+      setText('title', data.title);
+      setText('subtitle', data.subtitle || '');
+      setText('as-of', data.as_of || '—');
+      const cadence = (data.review_cadence || 'manual');
+      setText('cadence', cadence.charAt(0).toUpperCase() + cadence.slice(1));
+      checkStale(data.as_of, data.stale_after_days);
+
+      const subjects = (data.subjects || []).slice().sort((a, b) => a.name.localeCompare(b.name));
+      const subjectsBySlug = Object.fromEntries(subjects.map(s => [s.slug, s]));
+
+      renderSummary(subjects);
+      renderMatrix(subjects);
+      renderLoopTable(subjects);
+      renderContradictions(data.contradictions, subjectsBySlug);
+      renderFooter(data);
+    }
+
+    load().catch(err => {
+      console.error(err);
+      const errEl = document.createElement('pre');
+      errEl.style.color = '#dc2626';
+      errEl.style.padding = '24px';
+      errEl.textContent = 'Failed to load data.json: ' + err.message;
+      document.body.insertBefore(errEl, document.body.firstChild);
+    });
+  </script>
+</body>
+</html>

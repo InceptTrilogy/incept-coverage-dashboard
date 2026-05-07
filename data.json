@@ -1,0 +1,257 @@
+{
+  "title": "Incept AP Coverage Dashboard",
+  "subtitle": "Where the closed learning loop works today, by AP subject.",
+  "as_of": "2026-05-07",
+  "stale_after_days": 7,
+  "review_cadence": "weekly",
+  "data_sources": {
+    "roster": "timeback-loops/data/may_ap_exam_course_summary.csv (May 2026 roster)",
+    "hole_filler": "incept-hole-filler/src/hole_filler/subjects.py",
+    "frq_grader_full": "incept-test-builder/engine/grader_api/app.py",
+    "frq_grader_regrade": "incept-test-builder/engine/regrade/subject_registry.py",
+    "ced": "timeback-loops/data/ced_ap_*.json"
+  },
+  "loop_stages": {
+    "diagnose": "Wrong answers → content hash → AP standard tags via the loops_question_tag map. Requires CED file + tagger coverage.",
+    "decide": "Recommend the next test from current signal (nextTest.js). Subject-agnostic; works wherever the bucket logic has data to read.",
+    "act": "Build Knowledge → incept-hole-filler generates a tailored remediation course, pushes it to TimeBack, auto-enrolls the student. Requires the subject to be registered in the hole-filler.",
+    "retest": "Student takes the next test → FRQ grader scores the rubric → bucket re-evaluates. Requires a calibrated FRQ grader for the subject."
+  },
+  "status_legend": {
+    "closed": "Fully automated end-to-end; no human in the loop required.",
+    "partial": "Wired up but with a known caveat (e.g., grader uses generic fallback prompt, low student validation count).",
+    "open": "Not wired up or known broken; requires manual intervention or has no path."
+  },
+  "subjects": [
+    {
+      "name": "AP Biology",
+      "slug": "ap-biology",
+      "students": 9,
+      "exam_date": "May 4",
+      "hole_filler": { "registered": true, "notes": "" },
+      "frq_grader": { "status": "full", "notes": "Long/short FRQ branching by point total" },
+      "calibrated": true,
+      "loop": { "diagnose": "closed", "decide": "closed", "act": "closed", "retest": "closed" },
+      "overall": "closed",
+      "notes": ""
+    },
+    {
+      "name": "AP Calculus AB",
+      "slug": "ap-calculus-ab",
+      "students": 1,
+      "exam_date": "May 11",
+      "hole_filler": { "registered": false, "notes": "Not in subjects.py — Build Knowledge cannot generate a course" },
+      "frq_grader": { "status": "fallback", "notes": "BaseGrader (no subject-specific prompt)" },
+      "calibrated": true,
+      "loop": { "diagnose": "closed", "decide": "closed", "act": "open", "retest": "partial" },
+      "overall": "open",
+      "notes": "Low enrollment; remediation is currently manual"
+    },
+    {
+      "name": "AP Calculus BC",
+      "slug": "ap-calculus-bc",
+      "students": 2,
+      "exam_date": "May 11",
+      "hole_filler": { "registered": false, "notes": "Not in subjects.py" },
+      "frq_grader": { "status": "missing", "notes": "subject_registry.py raises KeyError; no grader path at all" },
+      "calibrated": false,
+      "loop": { "diagnose": "closed", "decide": "closed", "act": "open", "retest": "open" },
+      "overall": "open",
+      "notes": "MCQ flows; FRQ has no auto-grading. Exam is May 11 — 4 days out as of 5/7."
+    },
+    {
+      "name": "AP Chemistry",
+      "slug": "ap-chemistry",
+      "students": 6,
+      "exam_date": "May 5",
+      "hole_filler": { "registered": true, "notes": "" },
+      "frq_grader": { "status": "full", "notes": "" },
+      "calibrated": true,
+      "loop": { "diagnose": "closed", "decide": "closed", "act": "closed", "retest": "closed" },
+      "overall": "closed",
+      "notes": ""
+    },
+    {
+      "name": "AP Computer Science A",
+      "slug": "ap-computer-science-a",
+      "students": 3,
+      "exam_date": "May 15",
+      "hole_filler": { "registered": true, "notes": "OneRoster taxonomy lacks 'Computer Science' — coerced to 'Science' on push (cosmetic)" },
+      "frq_grader": { "status": "fallback", "notes": "BaseGrader (no CS-specific prompt)" },
+      "calibrated": true,
+      "loop": { "diagnose": "closed", "decide": "closed", "act": "closed", "retest": "partial" },
+      "overall": "partial",
+      "notes": "Loop runs end-to-end; FRQ feedback may be less specific than a dedicated grader would produce"
+    },
+    {
+      "name": "AP English Language and Composition",
+      "slug": "ap-english-language",
+      "students": 13,
+      "exam_date": "May 13",
+      "hole_filler": { "registered": true, "notes": "No end-to-end test fixture in repo — production-validated only" },
+      "frq_grader": { "status": "full", "notes": "Essay row-by-row comparative scoring against CB exemplars" },
+      "calibrated": true,
+      "loop": { "diagnose": "closed", "decide": "closed", "act": "closed", "retest": "closed" },
+      "overall": "closed",
+      "notes": "Highest-enrollment ELA subject"
+    },
+    {
+      "name": "AP English Literature and Composition",
+      "slug": "ap-english-literature",
+      "students": 4,
+      "exam_date": "May 6",
+      "hole_filler": { "registered": true, "notes": "" },
+      "frq_grader": { "status": "full", "notes": "Essay row-by-row comparative scoring against CB exemplars" },
+      "calibrated": true,
+      "loop": { "diagnose": "closed", "decide": "closed", "act": "closed", "retest": "closed" },
+      "overall": "closed",
+      "notes": ""
+    },
+    {
+      "name": "AP Environmental Science",
+      "slug": "ap-environmental-science",
+      "students": 1,
+      "exam_date": "May 15",
+      "hole_filler": { "registered": true, "notes": "" },
+      "frq_grader": { "status": "full", "notes": "" },
+      "calibrated": true,
+      "loop": { "diagnose": "closed", "decide": "closed", "act": "closed", "retest": "closed" },
+      "overall": "closed",
+      "notes": ""
+    },
+    {
+      "name": "AP Human Geography",
+      "slug": "ap-human-geography",
+      "students": 19,
+      "exam_date": "May 5",
+      "hole_filler": { "registered": true, "notes": "" },
+      "frq_grader": { "status": "full", "notes": "Letter-delimited part scoring; only subject validated end-to-end in FRQ_REGRADE_STATUS Phase 4" },
+      "calibrated": true,
+      "loop": { "diagnose": "closed", "decide": "closed", "act": "closed", "retest": "closed" },
+      "overall": "closed",
+      "notes": "Highest enrollment subject (19 students); flagship for the closed loop"
+    },
+    {
+      "name": "AP Microeconomics",
+      "slug": "ap-microeconomics",
+      "students": 6,
+      "exam_date": "May 4",
+      "hole_filler": { "registered": true, "notes": "" },
+      "frq_grader": { "status": "full", "notes": "Scenario-style FRQ grading" },
+      "calibrated": true,
+      "loop": { "diagnose": "closed", "decide": "closed", "act": "closed", "retest": "closed" },
+      "overall": "closed",
+      "notes": ""
+    },
+    {
+      "name": "AP Music Theory",
+      "slug": "ap-music-theory",
+      "students": 1,
+      "exam_date": "May 11",
+      "hole_filler": { "registered": false, "notes": "Not in subjects.py" },
+      "frq_grader": { "status": "fallback", "notes": "BaseGrader" },
+      "calibrated": true,
+      "loop": { "diagnose": "open", "decide": "partial", "act": "open", "retest": "partial" },
+      "overall": "open",
+      "notes": "No CED file in data/ced_ap_*.json — tagger has no standards to map to. Functionally outside the loop."
+    },
+    {
+      "name": "AP Physics 1",
+      "slug": "ap-physics-1",
+      "students": 6,
+      "exam_date": "May 6",
+      "hole_filler": { "registered": true, "notes": "" },
+      "frq_grader": { "status": "fallback", "notes": "BaseGrader (no Physics-specific prompt). FRQ ALERT pattern from earlier was a question-ingestion issue, fixed separately." },
+      "calibrated": true,
+      "loop": { "diagnose": "closed", "decide": "closed", "act": "closed", "retest": "partial" },
+      "overall": "partial",
+      "notes": "Question-ingestion fix landed; loop runs end-to-end. Dedicated Physics grader prompt would improve feedback specificity."
+    },
+    {
+      "name": "AP Psychology",
+      "slug": "ap-psychology",
+      "students": 9,
+      "exam_date": "May 12",
+      "hole_filler": { "registered": true, "notes": "" },
+      "frq_grader": { "status": "full", "notes": "Scenario-style FRQ grading" },
+      "calibrated": true,
+      "loop": { "diagnose": "closed", "decide": "closed", "act": "closed", "retest": "closed" },
+      "overall": "closed",
+      "notes": ""
+    },
+    {
+      "name": "AP Statistics",
+      "slug": "ap-statistics",
+      "students": 1,
+      "exam_date": "May 7",
+      "hole_filler": { "registered": false, "notes": "Not in subjects.py" },
+      "frq_grader": { "status": "fallback", "notes": "BaseGrader (no Stats-specific prompt)" },
+      "calibrated": true,
+      "loop": { "diagnose": "closed", "decide": "closed", "act": "open", "retest": "partial" },
+      "overall": "open",
+      "notes": "Low enrollment; remediation currently manual"
+    },
+    {
+      "name": "AP US Government and Politics",
+      "slug": "ap-us-government",
+      "students": 4,
+      "exam_date": "May 5",
+      "hole_filler": { "registered": true, "notes": "" },
+      "frq_grader": { "status": "full", "notes": "" },
+      "calibrated": true,
+      "loop": { "diagnose": "closed", "decide": "closed", "act": "closed", "retest": "closed" },
+      "overall": "closed",
+      "notes": ""
+    },
+    {
+      "name": "AP United States History",
+      "slug": "ap-us-history",
+      "students": 12,
+      "exam_date": "May 8",
+      "hole_filler": { "registered": true, "notes": "" },
+      "frq_grader": { "status": "full", "notes": "Shared APUSH/APWH grader; SAQ/DBQ/LEQ branches via PROMPTS_BY_TYPE" },
+      "calibrated": true,
+      "loop": { "diagnose": "closed", "decide": "closed", "act": "closed", "retest": "closed" },
+      "overall": "closed",
+      "notes": ""
+    },
+    {
+      "name": "AP World History: Modern",
+      "slug": "ap-world-history",
+      "students": 11,
+      "exam_date": "May 7",
+      "hole_filler": { "registered": true, "notes": "" },
+      "frq_grader": { "status": "full", "notes": "Shared APUSH/APWH grader" },
+      "calibrated": true,
+      "loop": { "diagnose": "closed", "decide": "closed", "act": "closed", "retest": "closed" },
+      "overall": "closed",
+      "notes": ""
+    }
+  ],
+  "contradictions": [
+    {
+      "title": "AP Calculus BC has enrolled students but no FRQ grader",
+      "severity": "high",
+      "subjects": ["ap-calculus-bc"],
+      "students_affected": 2,
+      "details": "2 students sit the May 11 exam. The slug is not registered in incept-hole-filler/src/hole_filler/subjects.py, and engine/regrade/subject_registry.py raises KeyError on it. MCQ ingestion + tagger work via the CED file, but Build Knowledge cannot generate a tailored course and FRQ sections cannot be auto-graded.",
+      "remediation": "Either (a) add Calc BC to both registries before May 11, or (b) flag the 2 affected students for manual remediation."
+    },
+    {
+      "title": "Three subjects with enrolled students are not in the hole-filler registry",
+      "severity": "medium",
+      "subjects": ["ap-calculus-ab", "ap-statistics", "ap-music-theory"],
+      "students_affected": 3,
+      "details": "When students in these subjects hit the Build Knowledge action bucket, no remediation course can be auto-generated. Enrollment is small (1+1+1 = 3 students), so the operational impact is limited; coverage gap is real if enrollment grows.",
+      "remediation": "Add the three slugs to incept-hole-filler/src/hole_filler/subjects.py with appropriate roster_labels, oneroster_subjects, and grades entries. CED files exist for Calc AB and Stats; Music Theory needs a CED first."
+    },
+    {
+      "title": "AP Music Theory has no CED file",
+      "severity": "medium",
+      "subjects": ["ap-music-theory"],
+      "students_affected": 1,
+      "details": "data/ced_ap_*.json covers 16 of 17 enrolled subjects — Music Theory is missing. The tagger has no standards to map wrong answers to, so the Diagnose stage is open for this subject regardless of hole-filler registration.",
+      "remediation": "Author a CED-style standards file for AP Music Theory (skills + topic taxonomy) and place it in timeback-loops/data/."
+    }
+  ]
+}
