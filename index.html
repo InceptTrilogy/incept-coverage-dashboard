@@ -21,7 +21,7 @@
 
     <section id="summary-section">
       <h2>Loop status — headline</h2>
-      <p class="section-desc">Per-subject loop status rolled up. A subject is <em>closed</em> when all four stages (Diagnose → Decide → Act → Re-test) run end-to-end with no human in the loop.</p>
+      <p class="section-desc">Per-subject status of the four <em>system-side</em> automation stages (Diagnose → Decide → Act → Re-test). A separate fifth stage — <strong>Assign next test</strong> — is open for every subject today; that's a system-wide gap, not a per-subject one.</p>
       <div class="summary" id="summary"></div>
     </section>
 
@@ -57,9 +57,10 @@
           <tr>
             <th>Subject</th>
             <th class="cell-status" title="Wrong answers → tagged AP standards">Diagnose</th>
-            <th class="cell-status" title="Recommend the next test from current signal">Decide</th>
+            <th class="cell-status" title="Compute next-test recommendation from current signal">Decide</th>
             <th class="cell-status" title="Build Knowledge → tailored remediation course">Act</th>
-            <th class="cell-status" title="Re-test → grade → bucket re-evaluates">Re-test</th>
+            <th class="cell-status" title="Push the student to take the next recommended test (auto-assign / notify / schedule)">Assign</th>
+            <th class="cell-status" title="Result lands → grade → bucket re-evaluates">Re-test</th>
           </tr>
         </thead>
         <tbody id="loop-tbody"></tbody>
@@ -94,8 +95,8 @@
       missing: 'Missing (KeyError)',
     };
     const FRQ_PILL_CLASS = { full: 'closed', fallback: 'partial', missing: 'open' };
-    const STAGE_LABELS = { diagnose: 'Diagnose', decide: 'Decide', act: 'Act', retest: 'Re-test' };
-    const STAGE_ORDER = ['diagnose', 'decide', 'act', 'retest'];
+    const STAGE_LABELS = { diagnose: 'Diagnose', decide: 'Decide', act: 'Act', assign: 'Assign', retest: 'Re-test' };
+    const STAGE_ORDER = ['diagnose', 'decide', 'act', 'assign', 'retest'];
 
     function el(tag, opts = {}, children = []) {
       const node = document.createElement(tag);

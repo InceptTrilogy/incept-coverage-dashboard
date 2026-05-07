@@ -13,9 +13,10 @@
   },
   "loop_stages": {
     "diagnose": "Wrong answers → content hash → AP standard tags via the loops_question_tag map. Requires CED file + tagger coverage.",
-    "decide": "Recommend the next test from current signal (nextTest.js). Subject-agnostic; works wherever the bucket logic has data to read.",
+    "decide": "Compute the next-test recommendation from current signal (nextTest.js). Subject-agnostic; works wherever the bucket logic has data to read.",
     "act": "Build Knowledge → incept-hole-filler generates a tailored remediation course, pushes it to TimeBack, auto-enrolls the student. Requires the subject to be registered in the hole-filler.",
-    "retest": "Student takes the next test → FRQ grader scores the rubric → bucket re-evaluates. Requires a calibrated FRQ grader for the subject."
+    "assign": "Push the student to actually take the next recommended test (auto-create assignment, notify, schedule). Currently NOT automated for any subject — the recommendation is displayed on the dashboard but nothing triggers the student to act on it. This is the loop's biggest open seam.",
+    "retest": "Once the next test result lands, the FRQ grader scores it and the bucket re-evaluates. Requires a calibrated FRQ grader for the subject."
   },
   "status_legend": {
     "closed": "Fully automated end-to-end; no human in the loop required.",
@@ -31,7 +32,7 @@
       "hole_filler": { "registered": true, "notes": "" },
       "frq_grader": { "status": "full", "notes": "Long/short FRQ branching by point total" },
       "calibrated": true,
-      "loop": { "diagnose": "closed", "decide": "closed", "act": "closed", "retest": "closed" },
+      "loop": { "diagnose": "closed", "decide": "closed", "act": "closed", "assign": "open", "retest": "closed" },
       "overall": "closed",
       "notes": ""
     },
@@ -43,7 +44,7 @@
       "hole_filler": { "registered": false, "notes": "Not in subjects.py — Build Knowledge cannot generate a course" },
       "frq_grader": { "status": "fallback", "notes": "BaseGrader (no subject-specific prompt)" },
       "calibrated": true,
-      "loop": { "diagnose": "closed", "decide": "closed", "act": "open", "retest": "partial" },
+      "loop": { "diagnose": "closed", "decide": "closed", "act": "open", "assign": "open", "retest": "partial" },
       "overall": "open",
       "notes": "Low enrollment; remediation is currently manual"
     },
@@ -55,7 +56,7 @@
       "hole_filler": { "registered": false, "notes": "Not in subjects.py" },
       "frq_grader": { "status": "missing", "notes": "subject_registry.py raises KeyError; no grader path at all" },
       "calibrated": false,
-      "loop": { "diagnose": "closed", "decide": "closed", "act": "open", "retest": "open" },
+      "loop": { "diagnose": "closed", "decide": "closed", "act": "open", "assign": "open", "retest": "open" },
       "overall": "open",
       "notes": "MCQ flows; FRQ has no auto-grading. Exam is May 11 — 4 days out as of 5/7."
     },
@@ -67,7 +68,7 @@
       "hole_filler": { "registered": true, "notes": "" },
       "frq_grader": { "status": "full", "notes": "" },
       "calibrated": true,
-      "loop": { "diagnose": "closed", "decide": "closed", "act": "closed", "retest": "closed" },
+      "loop": { "diagnose": "closed", "decide": "closed", "act": "closed", "assign": "open", "retest": "closed" },
       "overall": "closed",
       "notes": ""
     },
@@ -77,11 +78,11 @@
       "students": 3,
       "exam_date": "May 15",
       "hole_filler": { "registered": true, "notes": "OneRoster taxonomy lacks 'Computer Science' — coerced to 'Science' on push (cosmetic)" },
-      "frq_grader": { "status": "fallback", "notes": "BaseGrader (no CS-specific prompt)" },
+      "frq_grader": { "status": "full", "notes": "Dedicated CS autograder at coreapi.inceptstore.com/cs_autograder/score (separate API). Integration with TimeBack AssessmentResults writeback needs verification." },
       "calibrated": true,
-      "loop": { "diagnose": "closed", "decide": "closed", "act": "closed", "retest": "partial" },
+      "loop": { "diagnose": "closed", "decide": "closed", "act": "closed", "assign": "open", "retest": "partial" },
       "overall": "partial",
-      "notes": "Loop runs end-to-end; FRQ feedback may be less specific than a dedicated grader would produce"
+      "notes": "FRQ grading lives in a separate API — confirm AssessmentResult writeback before promoting Re-test to closed"
     },
     {
       "name": "AP English Language and Composition",
@@ -91,7 +92,7 @@
       "hole_filler": { "registered": true, "notes": "No end-to-end test fixture in repo — production-validated only" },
       "frq_grader": { "status": "full", "notes": "Essay row-by-row comparative scoring against CB exemplars" },
       "calibrated": true,
-      "loop": { "diagnose": "closed", "decide": "closed", "act": "closed", "retest": "closed" },
+      "loop": { "diagnose": "closed", "decide": "closed", "act": "closed", "assign": "open", "retest": "closed" },
       "overall": "closed",
       "notes": "Highest-enrollment ELA subject"
     },
@@ -103,7 +104,7 @@
       "hole_filler": { "registered": true, "notes": "" },
       "frq_grader": { "status": "full", "notes": "Essay row-by-row comparative scoring against CB exemplars" },
       "calibrated": true,
-      "loop": { "diagnose": "closed", "decide": "closed", "act": "closed", "retest": "closed" },
+      "loop": { "diagnose": "closed", "decide": "closed", "act": "closed", "assign": "open", "retest": "closed" },
       "overall": "closed",
       "notes": ""
     },
@@ -115,7 +116,7 @@
       "hole_filler": { "registered": true, "notes": "" },
       "frq_grader": { "status": "full", "notes": "" },
       "calibrated": true,
-      "loop": { "diagnose": "closed", "decide": "closed", "act": "closed", "retest": "closed" },
+      "loop": { "diagnose": "closed", "decide": "closed", "act": "closed", "assign": "open", "retest": "closed" },
       "overall": "closed",
       "notes": ""
     },
@@ -127,7 +128,7 @@
       "hole_filler": { "registered": true, "notes": "" },
       "frq_grader": { "status": "full", "notes": "Letter-delimited part scoring; only subject validated end-to-end in FRQ_REGRADE_STATUS Phase 4" },
       "calibrated": true,
-      "loop": { "diagnose": "closed", "decide": "closed", "act": "closed", "retest": "closed" },
+      "loop": { "diagnose": "closed", "decide": "closed", "act": "closed", "assign": "open", "retest": "closed" },
       "overall": "closed",
       "notes": "Highest enrollment subject (19 students); flagship for the closed loop"
     },
@@ -139,7 +140,7 @@
       "hole_filler": { "registered": true, "notes": "" },
       "frq_grader": { "status": "full", "notes": "Scenario-style FRQ grading" },
       "calibrated": true,
-      "loop": { "diagnose": "closed", "decide": "closed", "act": "closed", "retest": "closed" },
+      "loop": { "diagnose": "closed", "decide": "closed", "act": "closed", "assign": "open", "retest": "closed" },
       "overall": "closed",
       "notes": ""
     },
@@ -151,7 +152,7 @@
       "hole_filler": { "registered": false, "notes": "Not in subjects.py" },
       "frq_grader": { "status": "fallback", "notes": "BaseGrader" },
       "calibrated": true,
-      "loop": { "diagnose": "open", "decide": "partial", "act": "open", "retest": "partial" },
+      "loop": { "diagnose": "open", "decide": "partial", "act": "open", "assign": "open", "retest": "partial" },
       "overall": "open",
       "notes": "No CED file in data/ced_ap_*.json — tagger has no standards to map to. Functionally outside the loop."
     },
@@ -163,7 +164,7 @@
       "hole_filler": { "registered": true, "notes": "" },
       "frq_grader": { "status": "fallback", "notes": "BaseGrader (no Physics-specific prompt). FRQ ALERT pattern from earlier was a question-ingestion issue, fixed separately." },
       "calibrated": true,
-      "loop": { "diagnose": "closed", "decide": "closed", "act": "closed", "retest": "partial" },
+      "loop": { "diagnose": "closed", "decide": "closed", "act": "closed", "assign": "open", "retest": "partial" },
       "overall": "partial",
       "notes": "Question-ingestion fix landed; loop runs end-to-end. Dedicated Physics grader prompt would improve feedback specificity."
     },
@@ -175,7 +176,7 @@
       "hole_filler": { "registered": true, "notes": "" },
       "frq_grader": { "status": "full", "notes": "Scenario-style FRQ grading" },
       "calibrated": true,
-      "loop": { "diagnose": "closed", "decide": "closed", "act": "closed", "retest": "closed" },
+      "loop": { "diagnose": "closed", "decide": "closed", "act": "closed", "assign": "open", "retest": "closed" },
       "overall": "closed",
       "notes": ""
     },
@@ -187,7 +188,7 @@
       "hole_filler": { "registered": false, "notes": "Not in subjects.py" },
       "frq_grader": { "status": "fallback", "notes": "BaseGrader (no Stats-specific prompt)" },
       "calibrated": true,
-      "loop": { "diagnose": "closed", "decide": "closed", "act": "open", "retest": "partial" },
+      "loop": { "diagnose": "closed", "decide": "closed", "act": "open", "assign": "open", "retest": "partial" },
       "overall": "open",
       "notes": "Low enrollment; remediation currently manual"
     },
@@ -199,7 +200,7 @@
       "hole_filler": { "registered": true, "notes": "" },
       "frq_grader": { "status": "full", "notes": "" },
       "calibrated": true,
-      "loop": { "diagnose": "closed", "decide": "closed", "act": "closed", "retest": "closed" },
+      "loop": { "diagnose": "closed", "decide": "closed", "act": "closed", "assign": "open", "retest": "closed" },
       "overall": "closed",
       "notes": ""
     },
@@ -211,7 +212,7 @@
       "hole_filler": { "registered": true, "notes": "" },
       "frq_grader": { "status": "full", "notes": "Shared APUSH/APWH grader; SAQ/DBQ/LEQ branches via PROMPTS_BY_TYPE" },
       "calibrated": true,
-      "loop": { "diagnose": "closed", "decide": "closed", "act": "closed", "retest": "closed" },
+      "loop": { "diagnose": "closed", "decide": "closed", "act": "closed", "assign": "open", "retest": "closed" },
       "overall": "closed",
       "notes": ""
     },
@@ -223,12 +224,20 @@
       "hole_filler": { "registered": true, "notes": "" },
       "frq_grader": { "status": "full", "notes": "Shared APUSH/APWH grader" },
       "calibrated": true,
-      "loop": { "diagnose": "closed", "decide": "closed", "act": "closed", "retest": "closed" },
+      "loop": { "diagnose": "closed", "decide": "closed", "act": "closed", "assign": "open", "retest": "closed" },
       "overall": "closed",
       "notes": ""
     }
   ],
   "contradictions": [
+    {
+      "title": "Auto-assignment of the next test is open across all 17 subjects",
+      "severity": "high",
+      "subjects": ["ap-biology", "ap-calculus-ab", "ap-calculus-bc", "ap-chemistry", "ap-computer-science-a", "ap-english-language", "ap-english-literature", "ap-environmental-science", "ap-human-geography", "ap-microeconomics", "ap-music-theory", "ap-physics-1", "ap-psychology", "ap-statistics", "ap-us-government", "ap-us-history", "ap-world-history"],
+      "students_affected": 108,
+      "details": "The system computes which test a student should take next (nextTest.js) and renders the recommendation on the dashboard, but no automation pushes the student to actually take it. There is no auto-created TimeBack assignment, no notification, no scheduled prompt. The Re-test stage therefore depends on the student (or a guide) noticing the recommendation and acting on it. Without this, even a fully wired Diagnose → Decide → Act sequence breaks here on every cycle.",
+      "remediation": "Decide the assignment surface (TimeBack assignment, push notification, email, or guide-facing nudge), wire it to the existing recommendation output, and stamp the record so the loop can detect 'recommended → assigned → taken'."
+    },
     {
       "title": "AP Calculus BC has enrolled students but no FRQ grader",
       "severity": "high",
