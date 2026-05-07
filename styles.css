@@ -189,6 +189,19 @@ td.numeric {
 .pill.partial { background: var(--partial-bg); color: var(--partial); }
 .pill.open { background: var(--open-bg); color: var(--open); }
 
+.pill.integration {
+  font-size: 11px;
+  padding: 1px 6px;
+  margin-right: 3px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+}
+
+.integrations-cell {
+  white-space: nowrap;
+  line-height: 1.6;
+}
+
 .cell-status {
   text-align: center;
   font-weight: 600;

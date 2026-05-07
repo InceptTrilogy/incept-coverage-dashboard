@@ -9,20 +9,37 @@
     "hole_filler": "incept-hole-filler/src/hole_filler/subjects.py",
     "frq_grader_full": "incept-test-builder/engine/grader_api/app.py",
     "frq_grader_regrade": "incept-test-builder/engine/regrade/subject_registry.py",
-    "ced": "timeback-loops/data/ced_ap_*.json"
+    "ced": "timeback-loops/data/ced_ap_*.json",
+    "integrations": "ap-test-scrapper/cbscraper, ap-test-scrapper/scraper/barrons.py, ap-test-scrapper/docs/next-steps.md"
   },
   "loop_stages": {
+    "pretest": "Has the student mastered the prerequisites? A gating check before practice begins. Today no subject gates on prereq mastery — recommendations flow from current performance, not prereq state. Universal product gap.",
     "diagnose": "Wrong answers → content hash → AP standard tags via the loops_question_tag map. Requires CED file + tagger coverage.",
+    "diagnostic": "Can we tell the student 'you know X%, need Y XP to completion' from a knowledge map? Different from Diagnose (which is reactive — runs after a wrong answer). Diagnostic is a forward-looking estimator. Today no subject has this — the system can recommend the next test but can't quote XP-to-completion.",
     "score": "Once a test is taken, the FRQ grader scores the rubric and the bucket re-evaluates. Closed for every subject that has a working grader (full or calibrated fallback). Open only for subjects with no grader path at all.",
     "decide": "Compute the next-test recommendation from current signal (nextTest.js). Subject-agnostic; works wherever the bucket logic has data to read.",
     "act": "Build Knowledge → incept-hole-filler generates a tailored remediation course, pushes it to TimeBack, auto-enrolls the student. Requires the subject to be registered in the hole-filler.",
-    "retest": "Assign a new test to the student — either the next practice exam or the post-hole-filler retest. Today the recommendation is displayed on the dashboard but nothing automatically schedules, notifies, or assigns the student. Manual for every subject. This is the loop's single universal product gap."
+    "retest": "Assign a new test to the student — either the next practice exam or the post-hole-filler retest. Today the recommendation is displayed on the dashboard but nothing automatically schedules, notifies, or assigns the student. The blocker is platform access: College Board, Barron's, Princeton et al do not expose programmatic test-assignment APIs. The two solve paths are (a) build admin-permission specialized agents per platform, or (b) pull all tests into AlphaTest via the Common Core Crawl so we own the assignment surface end-to-end."
   },
   "status_legend": {
     "closed": "Fully automated end-to-end; no human in the loop required.",
     "partial": "Wired up but with a known caveat (e.g., grader uses generic fallback prompt, low student validation count).",
     "open": "Not wired up or known broken; requires manual intervention or has no path."
   },
+  "integration_legend": {
+    "live": "Wired into production; ingestion is running.",
+    "partial": "Scraper or adapter feature-complete, but not yet wired into the production publisher pipeline.",
+    "open": "Not started — placeholder for the Common Core Crawl roadmap."
+  },
+  "sources": [
+    { "key": "college_board", "label": "College Board", "short": "CB" },
+    { "key": "barrons", "label": "Barron's", "short": "Bar" },
+    { "key": "princeton", "label": "Princeton Review", "short": "PR" },
+    { "key": "uworld", "label": "UWorld", "short": "UW" },
+    { "key": "ultimate_review_packet", "label": "Ultimate Review Packet", "short": "URP" },
+    { "key": "fiveable", "label": "Fiveable", "short": "Fv" },
+    { "key": "albert", "label": "Albert", "short": "Al" }
+  ],
   "subjects": [
     {
       "name": "AP Biology",
@@ -32,7 +49,8 @@
       "hole_filler": { "registered": true, "notes": "" },
       "frq_grader": { "status": "full", "notes": "Long/short FRQ branching by point total" },
       "calibrated": true,
-      "loop": { "diagnose": "closed", "decide": "closed", "act": "closed", "retest": "open", "score": "closed" },
+      "loop": { "pretest": "open", "diagnose": "closed", "diagnostic": "open", "score": "closed", "decide": "closed", "act": "closed", "retest": "open" },
+      "integrations": { "college_board": "live", "barrons": "partial" },
       "overall": "closed",
       "notes": ""
     },
@@ -44,9 +62,10 @@
       "hole_filler": { "registered": false, "notes": "Not in subjects.py — Build Knowledge cannot generate a course" },
       "frq_grader": { "status": "fallback", "notes": "BaseGrader (no subject-specific prompt)" },
       "calibrated": true,
-      "loop": { "diagnose": "closed", "decide": "closed", "act": "open", "retest": "open", "score": "closed" },
+      "loop": { "pretest": "open", "diagnose": "closed", "diagnostic": "open", "score": "closed", "decide": "closed", "act": "open", "retest": "open" },
+      "integrations": { "college_board": "open", "barrons": "partial" },
       "overall": "open",
-      "notes": "Low enrollment; remediation is currently manual"
+      "notes": "Low enrollment; remediation is currently manual. No CB practice exams in classroom."
     },
     {
       "name": "AP Calculus BC",
@@ -56,9 +75,10 @@
       "hole_filler": { "registered": false, "notes": "Not in subjects.py" },
       "frq_grader": { "status": "missing", "notes": "subject_registry.py raises KeyError; no grader path at all" },
       "calibrated": false,
-      "loop": { "diagnose": "closed", "decide": "closed", "act": "open", "retest": "open", "score": "open" },
+      "loop": { "pretest": "open", "diagnose": "closed", "diagnostic": "open", "score": "open", "decide": "closed", "act": "open", "retest": "open" },
+      "integrations": { "college_board": "live", "barrons": "partial" },
       "overall": "open",
-      "notes": "MCQ flows; FRQ has no auto-grading. Exam is May 11 — 4 days out as of 5/7."
+      "notes": "MCQ flows; FRQ has no auto-grading. CB coverage is thin (1 exam from 2019 Intl). Exam is May 11 — 4 days out as of 5/7."
     },
     {
       "name": "AP Chemistry",
@@ -68,7 +88,8 @@
       "hole_filler": { "registered": true, "notes": "" },
       "frq_grader": { "status": "full", "notes": "" },
       "calibrated": true,
-      "loop": { "diagnose": "closed", "decide": "closed", "act": "closed", "retest": "open", "score": "closed" },
+      "loop": { "pretest": "open", "diagnose": "closed", "diagnostic": "open", "score": "closed", "decide": "closed", "act": "closed", "retest": "open" },
+      "integrations": { "college_board": "live", "barrons": "partial" },
       "overall": "closed",
       "notes": ""
     },
@@ -80,7 +101,8 @@
       "hole_filler": { "registered": true, "notes": "OneRoster taxonomy lacks 'Computer Science' — coerced to 'Science' on push (cosmetic)" },
       "frq_grader": { "status": "full", "notes": "Dedicated CS autograder at coreapi.inceptstore.com/cs_autograder/score (separate API); writes scores back to TimeBack AssessmentResults" },
       "calibrated": true,
-      "loop": { "diagnose": "closed", "decide": "closed", "act": "closed", "retest": "open", "score": "closed" },
+      "loop": { "pretest": "open", "diagnose": "closed", "diagnostic": "open", "score": "closed", "decide": "closed", "act": "closed", "retest": "open" },
+      "integrations": { "college_board": "live", "barrons": "partial" },
       "overall": "closed",
       "notes": ""
     },
@@ -92,7 +114,8 @@
       "hole_filler": { "registered": true, "notes": "No end-to-end test fixture in repo — production-validated only" },
       "frq_grader": { "status": "full", "notes": "Essay row-by-row comparative scoring against CB exemplars" },
       "calibrated": true,
-      "loop": { "diagnose": "closed", "decide": "closed", "act": "closed", "retest": "open", "score": "closed" },
+      "loop": { "pretest": "open", "diagnose": "closed", "diagnostic": "open", "score": "closed", "decide": "closed", "act": "closed", "retest": "open" },
+      "integrations": { "college_board": "live", "barrons": "partial" },
       "overall": "closed",
       "notes": "Highest-enrollment ELA subject"
     },
@@ -104,7 +127,8 @@
       "hole_filler": { "registered": true, "notes": "" },
       "frq_grader": { "status": "full", "notes": "Essay row-by-row comparative scoring against CB exemplars" },
       "calibrated": true,
-      "loop": { "diagnose": "closed", "decide": "closed", "act": "closed", "retest": "open", "score": "closed" },
+      "loop": { "pretest": "open", "diagnose": "closed", "diagnostic": "open", "score": "closed", "decide": "closed", "act": "closed", "retest": "open" },
+      "integrations": { "college_board": "live", "barrons": "partial" },
       "overall": "closed",
       "notes": ""
     },
@@ -116,9 +140,10 @@
       "hole_filler": { "registered": true, "notes": "" },
       "frq_grader": { "status": "full", "notes": "" },
       "calibrated": true,
-      "loop": { "diagnose": "closed", "decide": "closed", "act": "closed", "retest": "open", "score": "closed" },
+      "loop": { "pretest": "open", "diagnose": "closed", "diagnostic": "open", "score": "closed", "decide": "closed", "act": "closed", "retest": "open" },
+      "integrations": { "college_board": "open", "barrons": "partial" },
       "overall": "closed",
-      "notes": ""
+      "notes": "No CB practice exams in classroom; Barron's full scrape exists but not pushed."
     },
     {
       "name": "AP Human Geography",
@@ -128,7 +153,8 @@
       "hole_filler": { "registered": true, "notes": "" },
       "frq_grader": { "status": "full", "notes": "Letter-delimited part scoring; only subject validated end-to-end in FRQ_REGRADE_STATUS Phase 4" },
       "calibrated": true,
-      "loop": { "diagnose": "closed", "decide": "closed", "act": "closed", "retest": "open", "score": "closed" },
+      "loop": { "pretest": "open", "diagnose": "closed", "diagnostic": "open", "score": "closed", "decide": "closed", "act": "closed", "retest": "open" },
+      "integrations": { "college_board": "live", "barrons": "partial" },
       "overall": "closed",
       "notes": "Highest enrollment subject (19 students); flagship for the closed loop"
     },
@@ -140,7 +166,8 @@
       "hole_filler": { "registered": true, "notes": "" },
       "frq_grader": { "status": "full", "notes": "Scenario-style FRQ grading" },
       "calibrated": true,
-      "loop": { "diagnose": "closed", "decide": "closed", "act": "closed", "retest": "open", "score": "closed" },
+      "loop": { "pretest": "open", "diagnose": "closed", "diagnostic": "open", "score": "closed", "decide": "closed", "act": "closed", "retest": "open" },
+      "integrations": { "college_board": "live", "barrons": "partial" },
       "overall": "closed",
       "notes": ""
     },
@@ -152,9 +179,10 @@
       "hole_filler": { "registered": false, "notes": "Not in subjects.py" },
       "frq_grader": { "status": "fallback", "notes": "BaseGrader" },
       "calibrated": true,
-      "loop": { "diagnose": "open", "decide": "partial", "act": "open", "retest": "open", "score": "closed" },
+      "loop": { "pretest": "open", "diagnose": "open", "diagnostic": "open", "score": "closed", "decide": "partial", "act": "open", "retest": "open" },
+      "integrations": { "college_board": "open", "barrons": "open" },
       "overall": "open",
-      "notes": "No CED file in data/ced_ap_*.json — tagger has no standards to map to. Functionally outside the loop."
+      "notes": "No CED file in data/ced_ap_*.json — tagger has no standards to map to. No Barron's scrape either. Functionally outside the loop."
     },
     {
       "name": "AP Physics 1",
@@ -164,9 +192,10 @@
       "hole_filler": { "registered": true, "notes": "" },
       "frq_grader": { "status": "fallback", "notes": "BaseGrader (no Physics-specific prompt) — calibrated and bucketed. Earlier ALERT pattern was a question-ingestion bug, fixed separately." },
       "calibrated": true,
-      "loop": { "diagnose": "closed", "decide": "closed", "act": "closed", "retest": "open", "score": "closed" },
+      "loop": { "pretest": "open", "diagnose": "closed", "diagnostic": "open", "score": "closed", "decide": "closed", "act": "closed", "retest": "open" },
+      "integrations": { "college_board": "open", "barrons": "partial" },
       "overall": "closed",
-      "notes": "A dedicated Physics grader prompt would improve feedback specificity but isn't blocking the loop."
+      "notes": "A dedicated Physics grader prompt would improve feedback specificity but isn't blocking the loop. No CB practice exams in classroom; Barron's available but unwired."
     },
     {
       "name": "AP Psychology",
@@ -176,7 +205,8 @@
       "hole_filler": { "registered": true, "notes": "" },
       "frq_grader": { "status": "full", "notes": "Scenario-style FRQ grading" },
       "calibrated": true,
-      "loop": { "diagnose": "closed", "decide": "closed", "act": "closed", "retest": "open", "score": "closed" },
+      "loop": { "pretest": "open", "diagnose": "closed", "diagnostic": "open", "score": "closed", "decide": "closed", "act": "closed", "retest": "open" },
+      "integrations": { "college_board": "live", "barrons": "partial" },
       "overall": "closed",
       "notes": ""
     },
@@ -188,9 +218,10 @@
       "hole_filler": { "registered": false, "notes": "Not in subjects.py" },
       "frq_grader": { "status": "fallback", "notes": "BaseGrader (no Stats-specific prompt)" },
       "calibrated": true,
-      "loop": { "diagnose": "closed", "decide": "closed", "act": "open", "retest": "open", "score": "closed" },
+      "loop": { "pretest": "open", "diagnose": "closed", "diagnostic": "open", "score": "closed", "decide": "closed", "act": "open", "retest": "open" },
+      "integrations": { "college_board": "open", "barrons": "partial" },
       "overall": "open",
-      "notes": "Low enrollment; remediation currently manual"
+      "notes": "Low enrollment; remediation currently manual. No CB practice exams in classroom; Barron's available but unwired."
     },
     {
       "name": "AP US Government and Politics",
@@ -200,7 +231,8 @@
       "hole_filler": { "registered": true, "notes": "" },
       "frq_grader": { "status": "full", "notes": "" },
       "calibrated": true,
-      "loop": { "diagnose": "closed", "decide": "closed", "act": "closed", "retest": "open", "score": "closed" },
+      "loop": { "pretest": "open", "diagnose": "closed", "diagnostic": "open", "score": "closed", "decide": "closed", "act": "closed", "retest": "open" },
+      "integrations": { "college_board": "live", "barrons": "partial" },
       "overall": "closed",
       "notes": ""
     },
@@ -212,7 +244,8 @@
       "hole_filler": { "registered": true, "notes": "" },
       "frq_grader": { "status": "full", "notes": "Shared APUSH/APWH grader; SAQ/DBQ/LEQ branches via PROMPTS_BY_TYPE" },
       "calibrated": true,
-      "loop": { "diagnose": "closed", "decide": "closed", "act": "closed", "retest": "open", "score": "closed" },
+      "loop": { "pretest": "open", "diagnose": "closed", "diagnostic": "open", "score": "closed", "decide": "closed", "act": "closed", "retest": "open" },
+      "integrations": { "college_board": "live", "barrons": "partial" },
       "overall": "closed",
       "notes": ""
     },
@@ -224,7 +257,8 @@
       "hole_filler": { "registered": true, "notes": "" },
       "frq_grader": { "status": "full", "notes": "Shared APUSH/APWH grader" },
       "calibrated": true,
-      "loop": { "diagnose": "closed", "decide": "closed", "act": "closed", "retest": "open", "score": "closed" },
+      "loop": { "pretest": "open", "diagnose": "closed", "diagnostic": "open", "score": "closed", "decide": "closed", "act": "closed", "retest": "open" },
+      "integrations": { "college_board": "live", "barrons": "partial" },
       "overall": "closed",
       "notes": ""
     }
@@ -235,8 +269,8 @@
       "severity": "high",
       "subjects": ["ap-biology", "ap-calculus-ab", "ap-calculus-bc", "ap-chemistry", "ap-computer-science-a", "ap-english-language", "ap-english-literature", "ap-environmental-science", "ap-human-geography", "ap-microeconomics", "ap-music-theory", "ap-physics-1", "ap-psychology", "ap-statistics", "ap-us-government", "ap-us-history", "ap-world-history"],
       "students_affected": 108,
-      "details": "The system computes which test a student should take next (nextTest.js) and renders the recommendation on the dashboard, but nothing pushes the student to take it. No auto-created TimeBack assignment, no notification, no scheduled prompt — both for the next practice test and for the post-hole-filler retest. Diagnose → Decide → Act → Score all run end-to-end automatically; Re-test is the single universal break in the loop.",
-      "remediation": "Decide the assignment surface (TimeBack assignment, push notification, email, or guide-facing nudge), wire it to the existing recommendation output, and stamp the record so the loop can detect 'recommended → assigned → taken'."
+      "details": "The system computes which test a student should take next (nextTest.js) and renders the recommendation on the dashboard, but nothing pushes the student to take it. No auto-created TimeBack assignment, no notification, no scheduled prompt — both for the next practice test and for the post-hole-filler retest. The blocker is platform access: College Board, Barron's, Princeton et al do not expose programmatic test-assignment APIs. Diagnose → Decide → Act → Score all run end-to-end automatically; Re-test is the single universal break in the loop.",
+      "remediation": "Two paths: (a) build specialized agents/workflows with admin permissions per external platform, or (b) pull all tests into AlphaTest via the Common Core Crawl (7 sources: College Board, Barron's, Princeton Review, UWorld, Ultimate Review Packet, Fiveable, Albert) so the assignment surface is owned end-to-end."
     },
     {
       "title": "AP Calculus BC has enrolled students but no FRQ grader",
@@ -245,6 +279,14 @@
       "students_affected": 2,
       "details": "2 students sit the May 11 exam. The slug is not registered in incept-hole-filler/src/hole_filler/subjects.py, and engine/regrade/subject_registry.py raises KeyError on it. MCQ ingestion + tagger work via the CED file, but Build Knowledge cannot generate a tailored course and FRQ sections cannot be auto-scored.",
       "remediation": "Either (a) add Calc BC to both registries before May 11, or (b) flag the 2 affected students for manual remediation."
+    },
+    {
+      "title": "Barron's scraper feature-complete but unwired — 16 of 17 subjects could absorb it",
+      "severity": "medium",
+      "subjects": ["ap-biology", "ap-calculus-ab", "ap-calculus-bc", "ap-chemistry", "ap-computer-science-a", "ap-english-language", "ap-english-literature", "ap-environmental-science", "ap-human-geography", "ap-microeconomics", "ap-physics-1", "ap-psychology", "ap-statistics", "ap-us-government", "ap-us-history", "ap-world-history"],
+      "students_affected": 107,
+      "details": "ap-test-scrapper/scraper/barrons.py has scraped 16 AP courses (2,558 questions across 44 tests, all math converted to MathML) but is not integrated into the new publisher pipeline (publisher/ module). Only AP Music Theory has no Barron's scrape. The publisher's ExamSource protocol is well-defined and pluggable — a BarronsExamSource adapter mirroring CBExamSource (67 lines, mostly delegations) would slot in cleanly. The hard part is post-wiring: Barron's items have no CB-aligned EK tags, so Diagnose can't attribute wrong answers to AP standards on Barron's-only items without an EK-tagger pass.",
+      "remediation": "Phase 1 (~2-3 days, 1 engineer): write BarronsExamSource adapter against the ExamSource protocol; map data/barrons/*/timeback/ JSON to the protocol's expected dict keys; wire into publisher/runner.py. Phase 2 (~1-2 weeks): EK-tagger pass over Barron's items to produce CED-aligned tags so Diagnose works. Phase 3: difficulty/blueprint mapping for cross-source mixed practice tests (longer-term)."
     }
   ]
 }

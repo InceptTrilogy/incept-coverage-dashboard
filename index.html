@@ -21,13 +21,13 @@
 
     <section id="summary-section">
       <h2>Loop status — headline</h2>
-      <p class="section-desc">Per-subject status of the four <em>system-side</em> automation stages (Diagnose, Score, Decide, Act). A fifth stage — <strong>Re-test</strong>, which means assigning a new test to the student — is open for every subject today: nothing automatically schedules, notifies, or assigns. That's the loop's single universal product gap.</p>
+      <p class="section-desc">Per-subject status of the four <em>system-side</em> automation stages that contribute to the overall verdict (Diagnose, Score, Decide, Act). Three additional stages are tracked separately because they're universally open today: <strong>Pre-test</strong> (mastered prereqs?), <strong>Diagnostic</strong> (XP-to-completion estimator), and <strong>Re-test</strong> (assigning a new test). Re-test is blocked by external-platform access; Pre-test and Diagnostic are unbuilt capabilities. None of the three are rolled into the overall verdict because doing so would collapse all variation across subjects.</p>
       <div class="summary" id="summary"></div>
     </section>
 
     <section id="matrix-section">
       <h2>Coverage matrix</h2>
-      <p class="section-desc">What's wired up for each enrolled AP subject. Hover a row to see notes and caveats.</p>
+      <p class="section-desc">What's wired up for each enrolled AP subject. Integrations is the Common Core Crawl — 7 external test-source pipelines we plan to ingest from. Hover a row for notes and caveats; hover an integration pill for source details.</p>
       <table>
         <thead>
           <tr>
@@ -37,6 +37,7 @@
             <th>Hole-filler</th>
             <th>FRQ grader</th>
             <th>Calibrated</th>
+            <th>Integrations</th>
             <th>Loop</th>
           </tr>
         </thead>
@@ -56,11 +57,13 @@
         <thead>
           <tr>
             <th>Subject</th>
+            <th class="cell-status" title="Has the student mastered the prerequisites? Universal gap today.">Pre-test</th>
             <th class="cell-status" title="Wrong answers → tagged AP standards">Diagnose</th>
+            <th class="cell-status" title="Forward-looking knowledge map → 'you know X%, need Y XP'. Universal gap today.">Diagnostic</th>
             <th class="cell-status" title="Result lands → grade → bucket re-evaluates">Score</th>
             <th class="cell-status" title="Compute next-test recommendation from current signal">Decide</th>
             <th class="cell-status" title="Build Knowledge → tailored remediation course">Act</th>
-            <th class="cell-status" title="Assign a new test to the student (next practice test or post-hole-filler retest)">Re-test</th>
+            <th class="cell-status" title="Assign a new test to the student. Universal gap — external platforms expose no test-assignment APIs.">Re-test</th>
           </tr>
         </thead>
         <tbody id="loop-tbody"></tbody>
@@ -95,8 +98,12 @@
       missing: 'Missing (KeyError)',
     };
     const FRQ_PILL_CLASS = { full: 'closed', fallback: 'partial', missing: 'open' };
-    const STAGE_LABELS = { diagnose: 'Diagnose', score: 'Score', decide: 'Decide', act: 'Act', retest: 'Re-test' };
-    const STAGE_ORDER = ['diagnose', 'score', 'decide', 'act', 'retest'];
+    const STAGE_LABELS = {
+      pretest: 'Pre-test', diagnose: 'Diagnose', diagnostic: 'Diagnostic',
+      score: 'Score', decide: 'Decide', act: 'Act', retest: 'Re-test',
+    };
+    const STAGE_ORDER = ['pretest', 'diagnose', 'diagnostic', 'score', 'decide', 'act', 'retest'];
+    const INTEGRATION_PILL_CLASS = { live: 'closed', partial: 'partial', open: 'open' };
 
     function el(tag, opts = {}, children = []) {
       const node = document.createElement(tag);
@@ -174,7 +181,23 @@
         `${studentsByStatus.open || 0} students`));
     }
 
-    function renderMatrix(subjects) {
+    function renderIntegrationsCell(subject, sources) {
+      const cell = el('td', { className: 'integrations-cell' });
+      const integrations = subject.integrations || {};
+      sources.forEach(src => {
+        const status = integrations[src.key] || 'open';
+        const cls = INTEGRATION_PILL_CLASS[status] || 'open';
+        const pillEl = el('span', {
+          className: `pill integration ${cls}`,
+          text: src.short,
+          title: `${src.label}: ${status}`,
+        });
+        cell.appendChild(pillEl);
+      });
+      return cell;
+    }
+
+    function renderMatrix(subjects, sources) {
       const tbody = document.getElementById('matrix-tbody');
       clearChildren(tbody);
 
@@ -201,6 +224,8 @@
         const calCell = el('td');
         calCell.appendChild(s.calibrated ? pill('closed', 'Yes') : pill('open', 'No'));
         tr.appendChild(calCell);
+
+        tr.appendChild(renderIntegrationsCell(s, sources));
 
         const loopCell = el('td');
         loopCell.appendChild(pill(s.overall));
@@ -309,8 +334,9 @@
       const subjects = (data.subjects || []).slice().sort((a, b) => a.name.localeCompare(b.name));
       const subjectsBySlug = Object.fromEntries(subjects.map(s => [s.slug, s]));
 
+      const sources = data.sources || [];
       renderSummary(subjects);
-      renderMatrix(subjects);
+      renderMatrix(subjects, sources);
       renderLoopTable(subjects);
       renderContradictions(data.contradictions, subjectsBySlug);
       renderFooter(data);
