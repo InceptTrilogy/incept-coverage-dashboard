@@ -4,9 +4,9 @@ A static, public dashboard that answers one question:
 
 > **Where in AP is the closed learning loop actually closed?**
 
-The loop runs in five stages: **Diagnose → Decide → Act → Assign → Re-test.** Four are system-side automation; the fifth (Assign) covers whether anything pushes the student to take the next recommended test. This dashboard maps each stage's status per AP subject, so the team and leadership can see at a glance which subjects work end-to-end and which have open seams.
+The loop runs in five stages: **Diagnose → Decide → Act → Re-test → Score.** Four are system-side automation that vary by subject; the fifth (**Re-test**, meaning *assigning a new test to the student*) is currently open for every subject — nothing schedules, notifies, or assigns automatically. That's the loop's single universal product gap.
 
-**Important:** Assign is currently open for every subject — the system computes a recommendation but nothing automatically triggers the student to act on it. That's the loop's biggest cross-cutting gap and it lives in the contradictions section.
+This dashboard maps each stage's status per AP subject, so the team and leadership can see at a glance which subjects work end-to-end and which have open seams.
 
 ## Live URL
 

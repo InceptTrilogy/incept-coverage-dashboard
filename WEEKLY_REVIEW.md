@@ -52,10 +52,10 @@ Per stage, the rule of thumb:
 | Diagnose | CED file exists AND tagger coverage ≥ 80% | CED exists, tagger coverage 50–80% | No CED file, or tagger coverage < 50% |
 | Decide | `nextTest.js` returns a recommendation given current signal | Recommendation works but tests are missing for some buckets | Subject has no practice tests in TimeBack inventory |
 | Act | Subject is in `subjects.py` AND a recent course was generated | Subject is in `subjects.py` but no recent generation observed | Subject is not in `subjects.py` |
-| Assign | An automated assignment / notification / schedule pushes the student to take the next recommended test | Recommendation surfaces in a place the student/guide reliably sees but no auto-action | Recommendation is shown only on the dashboard (today's default — `open` for every subject) |
-| Re-test | Dedicated FRQ grader AND calibrated AND result writeback into TimeBack confirmed | Grader exists but calibration weak or writeback unverified | No grader path (KeyError) |
+| Re-test | An automated assignment / notification / schedule pushes the student to take the next recommended test | Recommendation surfaces in a place the student/guide reliably sees but no auto-action | Recommendation is shown only on the dashboard (today's default — `open` for every subject) |
+| Score | Working FRQ grader (full or calibrated fallback) AND result lands in TimeBack and re-flows the bucket | Grader exists but calibration is uncertain or writeback unconfirmed | No grader path at all (e.g. KeyError on the slug) |
 
-Set `overall` to the worst of the **four system stages** (Diagnose, Decide, Act, Re-test). The Assign stage is intentionally excluded from `overall` because it's a system-wide gap (uniformly open today); rolling it into overall would collapse the variation between subjects. Surface Assign separately in the contradictions block until the gap is closed.
+Set `overall` to the worst of the four **system-side** stages (Diagnose, Decide, Act, Score). The Re-test stage is intentionally excluded from `overall` because it's a system-wide gap (uniformly open today); rolling it into overall would collapse the variation between subjects. Surface Re-test separately in the contradictions block until the gap is closed.
 
 ## 3. Review the contradictions list
 

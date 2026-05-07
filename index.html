@@ -21,7 +21,7 @@
 
     <section id="summary-section">
       <h2>Loop status — headline</h2>
-      <p class="section-desc">Per-subject status of the four <em>system-side</em> automation stages (Diagnose → Decide → Act → Re-test). A separate fifth stage — <strong>Assign next test</strong> — is open for every subject today; that's a system-wide gap, not a per-subject one.</p>
+      <p class="section-desc">Per-subject status of the four <em>system-side</em> automation stages (Diagnose, Decide, Act, Score). A fifth stage — <strong>Re-test</strong>, which means assigning a new test to the student — is open for every subject today: nothing automatically schedules, notifies, or assigns. That's the loop's single universal product gap.</p>
       <div class="summary" id="summary"></div>
     </section>
 
@@ -59,8 +59,8 @@
             <th class="cell-status" title="Wrong answers → tagged AP standards">Diagnose</th>
             <th class="cell-status" title="Compute next-test recommendation from current signal">Decide</th>
             <th class="cell-status" title="Build Knowledge → tailored remediation course">Act</th>
-            <th class="cell-status" title="Push the student to take the next recommended test (auto-assign / notify / schedule)">Assign</th>
-            <th class="cell-status" title="Result lands → grade → bucket re-evaluates">Re-test</th>
+            <th class="cell-status" title="Assign a new test to the student (next practice test or post-hole-filler retest)">Re-test</th>
+            <th class="cell-status" title="Result lands → grade → bucket re-evaluates">Score</th>
           </tr>
         </thead>
         <tbody id="loop-tbody"></tbody>
@@ -95,8 +95,8 @@
       missing: 'Missing (KeyError)',
     };
     const FRQ_PILL_CLASS = { full: 'closed', fallback: 'partial', missing: 'open' };
-    const STAGE_LABELS = { diagnose: 'Diagnose', decide: 'Decide', act: 'Act', assign: 'Assign', retest: 'Re-test' };
-    const STAGE_ORDER = ['diagnose', 'decide', 'act', 'assign', 'retest'];
+    const STAGE_LABELS = { diagnose: 'Diagnose', decide: 'Decide', act: 'Act', retest: 'Re-test', score: 'Score' };
+    const STAGE_ORDER = ['diagnose', 'decide', 'act', 'retest', 'score'];
 
     function el(tag, opts = {}, children = []) {
       const node = document.createElement(tag);
