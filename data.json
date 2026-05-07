@@ -13,10 +13,10 @@
   },
   "loop_stages": {
     "diagnose": "Wrong answers → content hash → AP standard tags via the loops_question_tag map. Requires CED file + tagger coverage.",
+    "score": "Once a test is taken, the FRQ grader scores the rubric and the bucket re-evaluates. Closed for every subject that has a working grader (full or calibrated fallback). Open only for subjects with no grader path at all.",
     "decide": "Compute the next-test recommendation from current signal (nextTest.js). Subject-agnostic; works wherever the bucket logic has data to read.",
     "act": "Build Knowledge → incept-hole-filler generates a tailored remediation course, pushes it to TimeBack, auto-enrolls the student. Requires the subject to be registered in the hole-filler.",
-    "retest": "Assign a new test to the student — either the next practice exam or the post-hole-filler retest. Today the recommendation is displayed on the dashboard but nothing automatically schedules, notifies, or assigns the student. Manual for every subject. This is the loop's single universal product gap.",
-    "score": "Once a test is taken, the FRQ grader scores the rubric and the bucket re-evaluates. Closed for every subject that has a working grader (full or calibrated fallback). Open only for subjects with no grader path at all."
+    "retest": "Assign a new test to the student — either the next practice exam or the post-hole-filler retest. Today the recommendation is displayed on the dashboard but nothing automatically schedules, notifies, or assigns the student. Manual for every subject. This is the loop's single universal product gap."
   },
   "status_legend": {
     "closed": "Fully automated end-to-end; no human in the loop required.",
