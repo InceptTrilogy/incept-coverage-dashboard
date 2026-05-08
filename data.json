@@ -10,7 +10,8 @@
     "frq_grader_full": "incept-test-builder/engine/grader_api/app.py",
     "frq_grader_regrade": "incept-test-builder/engine/regrade/subject_registry.py",
     "ced": "timeback-loops/data/ced_ap_*.json",
-    "integrations": "ap-test-scrapper/cbscraper, ap-test-scrapper/scraper/barrons.py, ap-test-scrapper/docs/next-steps.md"
+    "integrations": "ap-test-scrapper/cbscraper, ap-test-scrapper/scraper/barrons.py, ap-test-scrapper/docs/next-steps.md",
+    "retest_links": "AP Classroom: apclassroom.collegeboard.org · Barron's: barronseduc.com/resources/active · Princeton/UWorld/URP/Fiveable/Albert: TBD (see timeback-loops/src/components/RetestCard/copy.js for the canonical RETEST_COPY[].link map)"
   },
   "loop_stages": {
     "pretest": "Has the student mastered the prerequisites? A gating check before practice begins. Today no subject gates on prereq mastery — recommendations flow from current performance, not prereq state. Universal product gap.",
