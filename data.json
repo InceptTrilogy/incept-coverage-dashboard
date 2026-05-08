@@ -49,7 +49,7 @@
       "hole_filler": { "registered": true, "notes": "" },
       "frq_grader": { "status": "full", "notes": "Long/short FRQ branching by point total" },
       "calibrated": true,
-      "loop": { "pretest": "open", "diagnose": "closed", "diagnostic": "open", "score": "closed", "decide": "closed", "act": "closed", "retest": "open" },
+      "loop": { "pretest": "open", "diagnose": "closed", "diagnostic": "open", "score": "closed", "decide": "closed", "act": "closed", "retest": "partial" },
       "integrations": { "college_board": "live", "barrons": "partial" },
       "overall": "closed",
       "notes": ""
@@ -75,7 +75,7 @@
       "hole_filler": { "registered": false, "notes": "Not in subjects.py" },
       "frq_grader": { "status": "missing", "notes": "subject_registry.py raises KeyError; no grader path at all" },
       "calibrated": false,
-      "loop": { "pretest": "open", "diagnose": "closed", "diagnostic": "open", "score": "open", "decide": "closed", "act": "open", "retest": "open" },
+      "loop": { "pretest": "open", "diagnose": "closed", "diagnostic": "open", "score": "open", "decide": "closed", "act": "open", "retest": "partial" },
       "integrations": { "college_board": "live", "barrons": "partial" },
       "overall": "open",
       "notes": "MCQ flows; FRQ has no auto-grading. CB coverage is thin (1 exam from 2019 Intl). Exam is May 11 — 4 days out as of 5/7."
@@ -88,7 +88,7 @@
       "hole_filler": { "registered": true, "notes": "" },
       "frq_grader": { "status": "full", "notes": "" },
       "calibrated": true,
-      "loop": { "pretest": "open", "diagnose": "closed", "diagnostic": "open", "score": "closed", "decide": "closed", "act": "closed", "retest": "open" },
+      "loop": { "pretest": "open", "diagnose": "closed", "diagnostic": "open", "score": "closed", "decide": "closed", "act": "closed", "retest": "partial" },
       "integrations": { "college_board": "live", "barrons": "partial" },
       "overall": "closed",
       "notes": ""
@@ -101,7 +101,7 @@
       "hole_filler": { "registered": true, "notes": "OneRoster taxonomy lacks 'Computer Science' — coerced to 'Science' on push (cosmetic)" },
       "frq_grader": { "status": "full", "notes": "Dedicated CS autograder at coreapi.inceptstore.com/cs_autograder/score (separate API); writes scores back to TimeBack AssessmentResults" },
       "calibrated": true,
-      "loop": { "pretest": "open", "diagnose": "closed", "diagnostic": "open", "score": "closed", "decide": "closed", "act": "closed", "retest": "open" },
+      "loop": { "pretest": "open", "diagnose": "closed", "diagnostic": "open", "score": "closed", "decide": "closed", "act": "closed", "retest": "partial" },
       "integrations": { "college_board": "live", "barrons": "partial" },
       "overall": "closed",
       "notes": ""
@@ -114,7 +114,7 @@
       "hole_filler": { "registered": true, "notes": "No end-to-end test fixture in repo — production-validated only" },
       "frq_grader": { "status": "full", "notes": "Essay row-by-row comparative scoring against CB exemplars" },
       "calibrated": true,
-      "loop": { "pretest": "open", "diagnose": "closed", "diagnostic": "open", "score": "closed", "decide": "closed", "act": "closed", "retest": "open" },
+      "loop": { "pretest": "open", "diagnose": "closed", "diagnostic": "open", "score": "closed", "decide": "closed", "act": "closed", "retest": "partial" },
       "integrations": { "college_board": "live", "barrons": "partial" },
       "overall": "closed",
       "notes": "Highest-enrollment ELA subject"
@@ -127,7 +127,7 @@
       "hole_filler": { "registered": true, "notes": "" },
       "frq_grader": { "status": "full", "notes": "Essay row-by-row comparative scoring against CB exemplars" },
       "calibrated": true,
-      "loop": { "pretest": "open", "diagnose": "closed", "diagnostic": "open", "score": "closed", "decide": "closed", "act": "closed", "retest": "open" },
+      "loop": { "pretest": "open", "diagnose": "closed", "diagnostic": "open", "score": "closed", "decide": "closed", "act": "closed", "retest": "partial" },
       "integrations": { "college_board": "live", "barrons": "partial" },
       "overall": "closed",
       "notes": ""
@@ -153,7 +153,7 @@
       "hole_filler": { "registered": true, "notes": "" },
       "frq_grader": { "status": "full", "notes": "Letter-delimited part scoring; only subject validated end-to-end in FRQ_REGRADE_STATUS Phase 4" },
       "calibrated": true,
-      "loop": { "pretest": "open", "diagnose": "closed", "diagnostic": "open", "score": "closed", "decide": "closed", "act": "closed", "retest": "open" },
+      "loop": { "pretest": "open", "diagnose": "closed", "diagnostic": "open", "score": "closed", "decide": "closed", "act": "closed", "retest": "partial" },
       "integrations": { "college_board": "live", "barrons": "partial" },
       "overall": "closed",
       "notes": "Highest enrollment subject (19 students); flagship for the closed loop"
@@ -166,7 +166,7 @@
       "hole_filler": { "registered": true, "notes": "" },
       "frq_grader": { "status": "full", "notes": "Scenario-style FRQ grading" },
       "calibrated": true,
-      "loop": { "pretest": "open", "diagnose": "closed", "diagnostic": "open", "score": "closed", "decide": "closed", "act": "closed", "retest": "open" },
+      "loop": { "pretest": "open", "diagnose": "closed", "diagnostic": "open", "score": "closed", "decide": "closed", "act": "closed", "retest": "partial" },
       "integrations": { "college_board": "live", "barrons": "partial" },
       "overall": "closed",
       "notes": ""
@@ -205,7 +205,7 @@
       "hole_filler": { "registered": true, "notes": "" },
       "frq_grader": { "status": "full", "notes": "Scenario-style FRQ grading" },
       "calibrated": true,
-      "loop": { "pretest": "open", "diagnose": "closed", "diagnostic": "open", "score": "closed", "decide": "closed", "act": "closed", "retest": "open" },
+      "loop": { "pretest": "open", "diagnose": "closed", "diagnostic": "open", "score": "closed", "decide": "closed", "act": "closed", "retest": "partial" },
       "integrations": { "college_board": "live", "barrons": "partial" },
       "overall": "closed",
       "notes": ""
@@ -231,7 +231,7 @@
       "hole_filler": { "registered": true, "notes": "" },
       "frq_grader": { "status": "full", "notes": "" },
       "calibrated": true,
-      "loop": { "pretest": "open", "diagnose": "closed", "diagnostic": "open", "score": "closed", "decide": "closed", "act": "closed", "retest": "open" },
+      "loop": { "pretest": "open", "diagnose": "closed", "diagnostic": "open", "score": "closed", "decide": "closed", "act": "closed", "retest": "partial" },
       "integrations": { "college_board": "live", "barrons": "partial" },
       "overall": "closed",
       "notes": ""
@@ -244,7 +244,7 @@
       "hole_filler": { "registered": true, "notes": "" },
       "frq_grader": { "status": "full", "notes": "Shared APUSH/APWH grader; SAQ/DBQ/LEQ branches via PROMPTS_BY_TYPE" },
       "calibrated": true,
-      "loop": { "pretest": "open", "diagnose": "closed", "diagnostic": "open", "score": "closed", "decide": "closed", "act": "closed", "retest": "open" },
+      "loop": { "pretest": "open", "diagnose": "closed", "diagnostic": "open", "score": "closed", "decide": "closed", "act": "closed", "retest": "partial" },
       "integrations": { "college_board": "live", "barrons": "partial" },
       "overall": "closed",
       "notes": ""
@@ -257,7 +257,7 @@
       "hole_filler": { "registered": true, "notes": "" },
       "frq_grader": { "status": "full", "notes": "Shared APUSH/APWH grader" },
       "calibrated": true,
-      "loop": { "pretest": "open", "diagnose": "closed", "diagnostic": "open", "score": "closed", "decide": "closed", "act": "closed", "retest": "open" },
+      "loop": { "pretest": "open", "diagnose": "closed", "diagnostic": "open", "score": "closed", "decide": "closed", "act": "closed", "retest": "partial" },
       "integrations": { "college_board": "live", "barrons": "partial" },
       "overall": "closed",
       "notes": ""
