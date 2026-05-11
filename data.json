@@ -202,13 +202,13 @@
       "students": 6,
       "exam_date": "May 6",
       "hole_filler": { "registered": true, "notes": "" },
-      "frq_grader": { "status": "fallback", "notes": "BaseGrader (no Physics-specific prompt) — calibrated and bucketed. Earlier ALERT pattern was a question-ingestion bug, fixed separately." },
+      "frq_grader": { "status": "full", "notes": "Dedicated Physics 1 grader; earlier ALERT pattern was a question-ingestion bug, fixed separately." },
       "calibrated": true,
       "grading": "ai",
       "loop": { "pretest": "open", "diagnose": "closed", "diagnostic": "open", "score": "closed", "decide": "closed", "act": "closed", "retest": "partial" },
       "integrations": { "college_board": "open", "barrons": "live" },
       "overall": "closed",
-      "notes": "A dedicated Physics grader prompt would improve feedback specificity but isn't blocking the loop. No CB practice exams in classroom; Barron's available but unwired."
+      "notes": "No CB practice exams in classroom; Barron's available but unwired."
     },
     {
       "name": "AP Psychology",
