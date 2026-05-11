@@ -50,7 +50,11 @@ Per stage, the rule of thumb:
 | Stage | Closed when | Partial when | Open when |
 |---|---|---|---|
 | Diagnose | CED file exists AND tagger coverage ≥ 80% | CED exists, tagger coverage 50–80% | No CED file, or tagger coverage < 50% |
-| Score | Working FRQ grader (full or calibrated fallback) AND result lands in TimeBack and re-flows the bucket | Grader exists but calibration is uncertain or writeback unconfirmed | No grader path at all (e.g. KeyError on the slug) |
+| Score | AI grading is production-active for this subject (autograded end-to-end, no human in the loop) | Human grading is the production path — whether or not an AI grader exists | No grading mechanism at all |
+
+Set `grading` field on each subject to `"ai"` or `"human"` (or `"none"` in the rare case of no path). The dashboard's matrix renders this as a dedicated column. Keep this in sync with the Score stage status: `grading: "ai"` ↔ `score: "closed"`, `grading: "human"` ↔ `score: "partial"`.
+
+
 | Decide | `nextTest.js` returns a recommendation given current signal | Recommendation works but tests are missing for some buckets | Subject has no practice tests in TimeBack inventory |
 | Act | Subject is in `subjects.py` AND a recent course was generated | Subject is in `subjects.py` but no recent generation observed | Subject is not in `subjects.py` |
 | Re-test | An automated assignment / notification / schedule pushes the student to take the next recommended test | Recommendation surfaces in a place the student/guide reliably sees but no auto-action | Recommendation is shown only on the dashboard (today's default — `open` for every subject) |

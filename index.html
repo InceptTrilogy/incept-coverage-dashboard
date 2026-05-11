@@ -36,6 +36,7 @@
             <th>Exam</th>
             <th>Hole-filler</th>
             <th>FRQ grader</th>
+            <th title="Production grading path: AI = autograded end-to-end, Human = human grader in the loop">Grading</th>
             <th>Calibrated</th>
             <th>Integrations</th>
             <th>Loop</th>
@@ -98,6 +99,8 @@
       missing: 'Missing (KeyError)',
     };
     const FRQ_PILL_CLASS = { full: 'closed', fallback: 'partial', missing: 'open' };
+    const GRADING_LABEL = { ai: 'AI', human: 'Human', none: 'None' };
+    const GRADING_PILL_CLASS = { ai: 'closed', human: 'partial', none: 'open' };
     const STAGE_LABELS = {
       pretest: 'Pre-test', diagnose: 'Diagnose', diagnostic: 'Diagnostic',
       score: 'Score', decide: 'Decide', act: 'Act', retest: 'Re-test',
@@ -220,6 +223,14 @@
         frqCell.appendChild(pill(FRQ_PILL_CLASS[s.frq_grader.status] || 'open',
           FRQ_LABEL[s.frq_grader.status] || s.frq_grader.status));
         tr.appendChild(frqCell);
+
+        const gradingCell = el('td');
+        const gradingKey = s.grading || 'none';
+        gradingCell.appendChild(pill(
+          GRADING_PILL_CLASS[gradingKey] || 'open',
+          GRADING_LABEL[gradingKey] || gradingKey,
+        ));
+        tr.appendChild(gradingCell);
 
         const calCell = el('td');
         calCell.appendChild(s.calibrated ? pill('closed', 'Yes') : pill('open', 'No'));
