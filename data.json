@@ -17,7 +17,7 @@
     "pretest": "Has the student mastered the prerequisites? A gating check before practice begins. Today no subject gates on prereq mastery — recommendations flow from current performance, not prereq state. Universal product gap.",
     "diagnose": "Wrong answers → content hash → AP standard tags via the loops_question_tag map. Requires CED file + tagger coverage.",
     "diagnostic": "Can we tell the student 'you know X%, need Y XP to completion' from a knowledge map? Different from Diagnose (which is reactive — runs after a wrong answer). Diagnostic is a forward-looking estimator. Today no subject has this — the system can recommend the next test but can't quote XP-to-completion.",
-    "score": "Once a test is taken, the FRQ is graded and the bucket re-evaluates. Closed = AI grading is production-active for this subject (rubric scored automatically, no human-in-the-loop). Partial = human grading is the production path (whether or not AI grader code exists — e.g. CSA has a CS autograder but FRQs are still graded by humans today). Open = no grading mechanism in place. 12 subjects are AI-graded today; 5 (Calc AB, Calc BC, CSA, Music Theory, Stats) still rely on human graders.",
+    "score": "Once a test is taken, the FRQ is graded and the bucket re-evaluates. Closed = AI grading is production-active for this subject (rubric scored automatically, no human-in-the-loop). Partial = human grading is the production path (whether or not AI grader code exists — human graders are still in the loop for subjects without a working autograder). Open = no grading mechanism in place. 13 subjects are AI-graded today (including CSA via the CS autograder at coreapi.inceptstore.com); 4 (Calc AB, Calc BC, Music Theory, Stats) still rely on human graders.",
     "decide": "Compute the next-test recommendation from current signal (nextTest.js). Subject-agnostic; works wherever the bucket logic has data to read.",
     "act": "Build Knowledge → incept-hole-filler generates a tailored remediation course, pushes it to TimeBack, auto-enrolls the student. Requires the subject to be registered in the hole-filler.",
     "retest": "Assign a new test to the student. MVP is link+nudge for every source: for AP Classroom, 'Ask your guide to assign Practice Exam 2'; for Barron's, 'Take Barron's Test 2 [deep link]'; same pattern for Princeton, UWorld, URP, Fiveable, Albert when those wire in. No platform-access APIs are needed — we initially thought that was the blocker, but it isn't. Today the next-test recommendation displays on the dashboard but nothing nudges the student. The plan at ap-test-scrapper/docs/plans/exhaustion-detection-plan.md ships the recommender + render layer in ~2 weeks end-to-end, flipping this stage from 'open' to 'partial' for the 12 CB-live subjects. Full 'closed' (automated email/Slack nudge on readiness) is a smaller follow-up. The Common Core Crawl is the longer-term path to owning the assignment surface end-to-end (all 7 sources in AlphaTest) but it's NOT blocking the MVP."
@@ -106,10 +106,10 @@
       "hole_filler": { "registered": true, "notes": "OneRoster taxonomy lacks 'Computer Science' — coerced to 'Science' on push (cosmetic)" },
       "frq_grader": { "status": "full", "notes": "Dedicated CS autograder at coreapi.inceptstore.com/cs_autograder/score (separate API); writes scores back to TimeBack AssessmentResults" },
       "calibrated": true,
-      "grading": "human",
-      "loop": { "pretest": "open", "diagnose": "closed", "diagnostic": "open", "score": "partial", "decide": "closed", "act": "closed", "retest": "partial" },
+      "grading": "ai",
+      "loop": { "pretest": "open", "diagnose": "closed", "diagnostic": "open", "score": "closed", "decide": "closed", "act": "closed", "retest": "partial" },
       "integrations": { "college_board": "live", "barrons": "live" },
-      "overall": "partial",
+      "overall": "closed",
       "notes": ""
     },
     {
